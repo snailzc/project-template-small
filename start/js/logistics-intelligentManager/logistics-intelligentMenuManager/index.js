@@ -29,7 +29,7 @@ layui.use(['tree', 'table', 'form'], function () {
   form.on("submit(save-menu-resource)", function (data) {
     let params = {
       ...data.field,
-      appCode: "logistics-intelligent",
+      appCode: config.appCode,
     };
     ajax({
       url: "/api/admin/menu/v1",
@@ -50,7 +50,7 @@ layui.use(['tree', 'table', 'form'], function () {
     let params = {
       ...currentSelectedMenu,
       ...data.field,
-      appCode: "logistics-intelligent",
+      appCode: config.appCode,
     };
     ajax({
       url: "/api/admin/menu/" + currentSelectedMenu.id,
@@ -184,7 +184,7 @@ function initPageData() {
 function getOrderList() {
   //菜单数据
   $.ajax({
-    url: "/api/admin/menu/tree?appCode=logistics-intelligent",
+    url: "/api/admin/menu/tree?appCode=" + config.appCode,
     type: "GET",
     dataType: 'json',
     contentType: 'application/json',

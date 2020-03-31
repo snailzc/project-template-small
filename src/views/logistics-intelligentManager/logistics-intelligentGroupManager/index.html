@@ -174,11 +174,12 @@
 </div>
 
 <script src="/start/js/method.js"></script>
+<script src="/start/js/config.js"></script>
 <script>
   var groupType;
 
   $.ajax({
-    url: "/api/admin/groupType/all?appCode=logistics-intelligent",
+    url: "/api/admin/groupType/all?appCode=" + config.appCode,
     type: "GET",
     async: true,
     headers: {

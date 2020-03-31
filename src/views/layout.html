@@ -58,7 +58,7 @@
         </a>
       </li> -->
       <li class="layui-nav-item" lay-unselect style="cursor: pointer;" id="userOnlineInfo">
-        <script type="text/html" template lay-url="/api/auth/online/user/count/safety-trace" lay-done="layui.data(d);">
+        <script type="text/html" template lay-url="/api/auth/online/user/count/" + config.appCode lay-done="layui.data(d);">
           <span>
             在线人数：{{ d.data }}
           </span>
@@ -70,7 +70,7 @@
         </a>
       </li>
       <li class="layui-nav-item" lay-unselect>
-        <script type="text/html" template lay-url="/api/admin/user/front/info" lay-headers="{frontAppCode: 'safety-trace'}"
+        <script type="text/html" template lay-url="/api/admin/user/front/info" lay-headers="{frontAppCode: '" + config.appCode "'}"
         lay-done="layui.data.done(d);">
           <a href="javascript:;">
             <cite>{{ d.name }}</cite>
@@ -96,7 +96,7 @@
   <!-- 侧边菜单 -->
   <div class="layui-side layui-side-menu">
     <div class="layui-side-scroll">
-      <script type="text/html" template lay-url="/api/admin/user/front/menus/logistics" lay-headers="{frontAppCode: 'safety-trace'}"
+      <script type="text/html" template lay-url="/api/admin/user/front/menus/logistics" lay-headers="{frontAppCode: '" + config.appCode + "'}"
       lay-done="layui.element.render('nav', 'layadmin-system-side-menu');" id="TPL_layout">
 
         <!-- <div class="layui-logo" lay-href="">
@@ -234,7 +234,7 @@
 
   (function getOnlineUserList() {
     ajax({
-      url:"/api/hr_integrate/user/online/count/getUserInfo?appCode=safety-trace&page=1&limit=1000000",
+      url:"/api/hr_integrate/user/online/count/getUserInfo?appCode=" + config.appCode + "&page=1&limit=1000000",
       callback(res){
         console.log(res);
         localStorage.setItem("userOnlineInformationList",JSON.stringify({list:res.data&&res.data.rows || []}));

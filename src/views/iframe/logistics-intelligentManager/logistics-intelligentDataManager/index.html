@@ -21,6 +21,7 @@
 <script src="/start/layui/layui.all.js"></script>
 <script src="../../../../config.js"></script>
 <script src="/start/js/method.js"></script>
+<script src="/start/js/config.js"></script>
 <script src="/start/layui/lay/modules/tree.js"></script>
 
 <script>
@@ -29,7 +30,7 @@
     var tree = layui.tree,
         layer = layui.layer,
         {onlyRowSelected} = parent,
-        appCode = "logistics-intelligent",
+        appCode = config.appCode,
         treeDataList,						//保存的是纯净的树的信息
         onReload = false;
 

@@ -69,7 +69,7 @@
 
         //提交
         form.on('submit(LAY-user-login-submit)', function (obj) {
-            obj.field.appCode = "safety-trace";
+            obj.field.appCode = config.appCode;
             //请求登入接口
             $(".login-button").show();
             admin.req({

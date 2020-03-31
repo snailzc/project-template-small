@@ -6,7 +6,7 @@ var $ = layui.jquery,
     tree,
     table,
     layer,
-    appCode = "logistics-intelligent",
+    appCode = config.appCode,
     currentRoleTypeInfo;                    //当前选中的角色类型的信息
 layui.use(['tree', 'table', 'form'], function () {
   tree = layui.tree;

@@ -143,7 +143,7 @@ function ajaxFileUploadPic(a) {
         url: '/file/upload/v4',
         type: 'POST',
         headers: {
-            appCode: 'logistics-intelligent'
+            appCode: config.appCode
         },
         cache: false,
         processData: false,
