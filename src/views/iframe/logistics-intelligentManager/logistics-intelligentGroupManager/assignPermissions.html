@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="/start/layui/css/layui.css">
+	<link rel="stylesheet" type="text/css" href="/start/layui/css/modules/tree2_5_5.css">
+	<style>
+		/*-----公共样式------------------------------------------------------------------------------------------------*/
+		.border-box {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		.model-content {
+			padding: 20px;
+		}
+
+		.model-content save-menu, .model-content save-auth {
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+<div class="model-content">
+	<div class="layui-row">
+		<div class="layui-col-md4">
+			<button class="layui-btn layui-btn-sm layui-btn-normal save-menu">
+				<i class="layui-icon">&#xe60a;</i>保存菜单
+			</button>
+			<div id="menu-tree" style="overflow-y: auto;height: 550px;">暂无数据</div>
+		</div>
+		<div class="layui-col-md8">
+			<button class="layui-btn layui-btn-sm layui-btn-normal save-auth">
+				<i class="layui-icon">&#xe60a;</i>保存权限
+			</button>
+			<div id="resource-table" lay-filter="resource-table"></div>
+		</div>
+	</div>
+</div>
+<script src="/start/layui/layui.all.js"></script>
+<script src="../../../../config.js"></script>
+<script src="/start/js/method.js"></script>
+<script src="/start/layui/lay/modules/tree.js"></script>
+<script>
+  var {currentRoleTypeInfo, appCode} = parent,
+      {id} = currentRoleTypeInfo,
+      roleId = id,
+      currentSelectedMenu,									//当前处于选中状态的那个菜单项
+      frameIndex = parent.layer.getFrameIndex(window.name),
+      form,
+      table,
+      tree,
+      treeInstance,
+      previousSelectedResources = [];
+  console.log({currentRoleTypeInfo, appCode, roleId, frameIndex});
+  layui.use(["form", "table", "tree"], function () {
+    tree = layui.tree;
+    form = layui.form;
+    table = layui.table;
+    getMenuTreeList();
+    renderResourceTable();
+  });
+  /*-----保存菜单和保存资源----------------------------------------------------------------------------------------------*/
+  $(".save-menu").click(function () {
+    let checkedNodes = treeInstance.getChecked();
+    let ids = checkedNodes.map(item => item.id);
+    ids.push("muyuan_menu_root");
+    ajax({
+      url: `/api/admin/group/${roleId}/authority/menu`,
+      type: "POST",
+      data: {
+        menuTrees: ids.join(",")
+      },
+      callback: function (res) {
+        if (res.status === 200 && res.rel) {
+          layer.msg("更新成功")
+        }
+      }
+    })
+  });
+
+  $(".save-auth").click(function () {
+    let result = getTableCheckStatus();
+    if (result.hasData) {
+      let ids = result.data.map(item => item.id);
+      ajax({
+        url: `/api/admin/group/${roleId}/authority/element/update`,
+        type: "POST",
+        data: {
+          menuId: currentSelectedMenu.id,
+          elementId: ids.join(","),
+          appCode
+        },
+        callback: function (res) {
+          if (res.status === 200 && res.rel) {
+            layer.msg("更新成功")
+          }
+        }
+      });
+    }
+  });
+
+  /*-----公共方法-------------------------------------------------------------------------------------------------------*/
+  //获取菜单数据并渲染菜单树
+  function getMenuTreeList() {
+    $.ajax({
+      url: `/api/admin/menu/tree?appCode=${appCode}`,
+      type: "GET",
+      dataType: 'json',
+      contentType: 'application/json',
+      async: true,
+      headers: {
+        Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+      },
+      success: function (res) {
+        treeInstance = renderTree({
+          element: "menu-tree",
+          data: res[0].children,
+          showCheckbox: true,
+          clickFn(data) {
+            currentSelectedMenu = data.data;
+            let id = data.data.id;
+            getPreviousSelectedResources(()=>renderResourceTable(id))
+          }
+        });
+        getSelectedMenuTreeList()
+      }
+    })
+  }
+
+  //  获取已选中的菜单数据并渲染到菜单数上
+  function getSelectedMenuTreeList() {
+    ajax({
+      url: `/api/admin/group/${roleId}/authority/menu?appCode=${appCode}`,
+      callback: function (res) {
+        if (res.data && res.data.length > 0) {
+          let ids = res.data.map(item => item.id);
+          treeInstance.setChecked(ids, true)
+        }
+      }
+    })
+  }
+
+  //渲染树
+  function renderTree({element, data, showCheckbox, clickFn}) {
+    return tree.render({
+      elem: `#${element}`,
+      id: element,
+      data: data,
+      showCheckbox: !!showCheckbox,
+      onlyIconControl: true,
+      showLine: false,
+      click: clickFn
+    })
+  }
+
+  //渲染资源表格
+  function renderResourceTable(menuId) {
+    table.render({
+      url: `/api/admin/element/list?menuId=${menuId || ""}&appCode=${appCode}`,
+      elem: '#resource-table',
+      page: true,
+      headers: {Authorization: layui.data(setter.tableName)[setter.request.tokenName]},
+      limits: [20, 40],
+      limit: 20,
+      parseData: function (res) {
+        return {
+          code: "0",
+          msg: res.message,
+          count: res.data.total,
+          data: res.data.rows.map(item => ({
+            ...item,
+            LAY_CHECKED: previousSelectedResources.includes(item.id)
+          }))
+        };
+      },
+      cols: [[
+        {type: "checkbox", field: 'id', width: 50, fixed: "left"},
+        {field: 'code', title: '资源编码', width: 230},
+        {field: 'type', title: '资源类型', width: 100},
+        {field: 'name', title: '资源名称', width: 200},
+        {field: 'uri', title: '资源地址', width: 300},
+        {field: 'method', title: '资源请求类型', width: 100},
+      ]]
+    });
+  }
+
+  //  获取操作之后的资源表格的选中情况
+  function getTableCheckStatus() {
+    let data = table.checkStatus("resource-table");
+    data.hasData = data.data.length > 0;
+    if (data.data.length === 0) {
+      layer.msg("暂无选择资源");
+    }
+    return data
+  }
+
+  //获取资源表格之前已被选中的数据
+  function getPreviousSelectedResources(fn) {
+    ajax({
+      url: `/api/admin/group/${roleId}/authority/element?appCode=${appCode}`,
+      callback: function (res) {
+        previousSelectedResources = res.data;
+        fn();
+      }
+    })
+  }
+
+</script>
+</body>

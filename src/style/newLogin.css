@@ -1,0 +1,94 @@
+@media screen and (min-width: 1360px) and (max-width: 1380px){
+    .main > .login-main{
+        transform: translate(-50%, -55%)!important;
+    } 
+}
+#LAY-user-login{
+    background: url('../../start/images/login/bg.png') no-repeat center center;
+}
+.layadmin-user-login {
+    padding: 0px!important;
+}
+.main > .login-main{
+    width: 100%!important; 
+    margin: 0!important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.main > .login-main > .login-header{
+    display: flex;
+    margin: 0 auto!important;
+    width: 500px;
+    font-family: PingFang SC;
+    font-size: 30px;
+    color: #fff;
+    height: 42px;
+    font-weight: 600;
+    line-height: 42px;
+    padding: 0px 0px 35px 0px!important;
+}
+.main > .login-main > .login-header h2{
+    display: block;
+    padding-left: 20px;
+    font-family: PingFang SC;
+    font-size: 30px;
+    color: #fff;
+    height: 42px;
+    font-weight: 600;
+    line-height: 42px;
+}
+.main > .login-main > .content{
+    display: flex;
+    height: 415px;
+    width: 830px;
+    margin: 0 auto;
+}
+.main > .login-main > .content > .left{
+    flex: 4;
+    height: 100%;
+    background: url('../../start/images/login/left.png') no-repeat center center;
+    border-radius: 10px 0px 0px 10px;
+}
+.main > .login-main > .content > .right{
+    flex: 7;
+    height: 100%;
+    border-radius: 0px 10px 10px 0px;
+    background-color: white;
+}
+.main > .login-main > .content > .right >.layadmin-user-login-box{
+    width: 423px;
+    margin: 0 auto;
+}
+.main > .login-main > .content > .right >.layadmin-user-login-box >.logo-title{
+    text-align: center;
+    font-weight: 600;
+    padding: 40px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #1890ff;
+    font-family: PingFang SC;
+}
+.main > .login-main > .content > .right >.layadmin-user-login-box >.layui-form-item{
+    margin-bottom: 30px!important;
+}
+.main > .login-main > .content > .right >.layadmin-user-login-box >.layui-form-item >.layadmin-user-login-icon,
+.main > .login-main > .content > .right >.layadmin-user-login-box >.layui-form-item >input,
+.main > .login-main > .content > .right >.layadmin-user-login-box >.layui-form-item >.layui-btn{
+    line-height: 47px!important;
+    height:47px!important;
+}
+.layui-btn{
+    background-color: #1890ff;
+    margin-bottom: -10px!important;
+}
+.main > .login-main > .content > .right >.layadmin-user-login-box >.logo-remark{
+    text-align: center;
+}
+.layadmin-user-login-footer p{
+    font-size: 14px;
+    font-family: PingFang SC;
+    font-weight: 400;
+    color: hsla(0,0%,100%,.6);
+}

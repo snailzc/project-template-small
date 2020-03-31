@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="/start/layui/css/layui.css">
+	<style>
+		.model {
+			padding: 20px;
+		}
+	</style>
+</head>
+<body>
+<div class="model">
+	<div id="only-tree">暂无数据</div>
+	<div style="text-align: center">
+		<button class="layui-btn layui-btn-sm layui-btn-normal save-button">&nbsp;保存&nbsp;</button>
+		<button class="layui-btn layui-btn-sm layui-btn-primary cancel-button">&nbsp;取消&nbsp;</button>
+	</div>
+</div>
+<script src="/start/layui/layui.all.js"></script>
+<script src="../../../../config.js"></script>
+<script src="/start/js/method.js"></script>
+<script src="/start/layui/lay/modules/tree.js"></script>
+
+<script>
+  var frameIndex = parent.layer.getFrameIndex(window.name);
+  layui.use(["tree", "layer"], function () {
+    var tree = layui.tree,
+        layer = layui.layer,
+        {onlyRowSelected} = parent,
+        appCode = "logistics-intelligent",
+        treeDataList,						//保存的是纯净的树的信息
+        onReload = false;
+
+    getTreeData(function (res) {
+      res.unshift({regionNum: "all", parentId: "-1", regionName: "全部", children: null});
+      treeDataList = res.map(item => ({
+        ...item,
+        children: item.children || [],
+        title: item.regionName,
+        id: item.regionNum,
+      }));
+      renderTree(treeDataList);
+      getSelectedData(function (data) {
+        if (data && data.length > 0) {
+          tree.setChecked("only-tree", data)
+        }
+      })
+    });
+
+    $(".save-button").click(function () {
+      let checkedData = tree.getChecked('only-tree');
+      ajax({
+        url: "/api/admin/dataAuth/user/updateList",
+        type: "POST",
+        data: {
+          appCode,
+          dataIds: checkedData.map(item => item.id).join(","),
+          userId: onlyRowSelected.id
+        },
+        callback: function () {
+          parent.layer.close(frameIndex);
+          parent.layer.msg("更新成功");
+        }
+      })
+    });
+
+    $(".cancel-button").click(function () {
+      parent.layer.close(frameIndex);
+    });
+    /*--------公共方法----------------------------------------------------------------------------------------------------------*/
+
+    //渲染树
+    function renderTree(data) {
+      tree.render({
+        elem: `#only-tree`,
+        id: "only-tree",
+        data: data,
+        showCheckbox: true,
+        onlyIconControl: true,
+        showLine: false,
+        oncheck: function (obj) {
+          console.log({treeDataList, obj});
+          if (obj.checked) {
+            if (onReload) {
+              onReload = false;
+              return
+            }
+            if (obj.data.id === "all") {
+              onReload = true;
+              tree.reload("only-tree", {
+                data: treeDataList.map(item => ({
+                  ...item,
+                  disabled: item.id !== "all",
+                  checked: item.id === "all"
+                }))
+              })
+            }
+          } else if (obj.data.id === "all") {
+            tree.reload("only-tree", {
+              data: treeDataList
+            });
+          }
+        }
+      })
+    }
+
+    //获取非json类型的数据
+    function ajaxNotJson(url, fn) {
+      $.ajax({
+        url,
+        type: "GET",
+        dataType: 'json',
+        contentType: 'application/json',
+        async: true,
+        headers: {
+          Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+        },
+        success: function (res) {
+          fn(res)
+        }
+      })
+    }
+
+    //获取树数据
+    function getTreeData(fn) {
+      ajaxNotJson(`/api/admin/dataAuth/tree/${appCode}`, fn)
+    }
+
+    //获取已经选中的数据
+    function getSelectedData(fn) {
+      ajaxNotJson(`/api/admin/dataAuth/user/get/${appCode}/${onlyRowSelected.id}`, fn)
+    }
+  })
+</script>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,122 @@
+<script type="text/html" template>
+    <link rel="stylesheet" href="{{ layui.setter.base }}style/login.css?v={{ layui.admin.v }}-1" media="all">
+    <link rel="stylesheet" href="{{ layui.setter.base }}style/newLogin.css?v={{ layui.admin.v }}-1" media="all">
+</script>
+
+<style>
+    #user-login-submit:active {
+        box-shadow: -3px -3px 3px 3px #01AAED;
+    }
+</style>
+<div class="layadmin-user-login layadmin-user-display-show main" id="LAY-user-login" style="display: none;">
+
+    <div class="layadmin-user-login-main login-main">
+        <div class="layadmin-user-login-box layadmin-user-login-header login-header">
+            <img src='../../../start/images/login/logo.svg' alt="logo.svg"/>
+            <h2 id="sysName"></h2>
+        </div>
+        <div class="content">
+            <div class="left"></div>
+            <div class="right">
+                <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+                    <div class="logo-title">账户登录</div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-username"
+                               for="LAY-user-login-username"></label>
+                        <input type="text" name="username" value="" id="LAY-user-login-username"
+                               lay-verify="required" placeholder="用户名" class="layui-input">
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-password"
+                               for="LAY-user-login-password"></label>
+                        <input type="password" name="password" value="" id="LAY-user-login-password"
+                               lay-verify="required" placeholder="密码" class="layui-input" onkeydown=KeyDown()>
+                    </div>
+                    <div class="layui-form-item">
+                        <button class="layui-btn layui-btn-fluid" id="user-login-submit" lay-submit
+                                lay-filter="LAY-user-login-submit">
+                            <i class="login-button layui-icon layui-icon-loading-1 layui-icon layui-anim layui-anim-rotate layui-anim-loop"
+                               style="display: none"></i>
+                            登 录
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-trans layadmin-user-login-footer">
+        <p>MuYuan Foods Co.,Ltd.牧原食品股份有限公司</p>
+        <p>豫ICP备12008773号 
+            <a style="color: hsla(0,0%,100%,.6);" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=41130302000124" target="_Blank">
+            <img src="../start/images/PL_ico.png">
+            豫公网安备 41130302000124号</a></p>
+    </div>
+
+</div>
+<script src="../../../start/js/config.js"></script>
+<script>
+    layui.use(['admin', 'form', 'user','layer'], function () {
+        var $ = layui.$
+            , setter = layui.setter
+            , admin = layui.admin
+            , form = layui.form
+            , router = layui.router()
+            , search = router.search;
+
+        layer.closeAll('loading');
+        form.render();
+        $('#sysName').text(config.appName);
+
+        //提交
+        form.on('submit(LAY-user-login-submit)', function (obj) {
+            obj.field.appCode = "safety-trace";
+            //请求登入接口
+            $(".login-button").show();
+            admin.req({
+                url: '/api/auth/jwt/token'
+                , data: JSON.stringify(obj.field)
+                , type: 'post'
+                , contentType: 'application/json;charset=UTF-8'
+                , done: function (res) {
+                    console.log({res})
+                    $(".login-button").hide();
+                    // console.log(res)
+                    //请求成功后，写入 access_token
+                    layui.data(setter.tableName, {
+                        key: setter.request.tokenName,
+                        value: res.data.rows[0].token
+                    });
+                    layui.data(setter.tableName, {
+                        key: 'refreshToken',
+                        value: res.data.rows[0].refreshToken
+                    });
+                    //登入成功的提示与跳转
+                    layer.msg('登录成功', {
+                        // offset: '15px'
+                        time: 1000
+                    }, function () {
+                        admin.req({
+                            url: '/api/auth/online/user/safety-trace'
+                            , type: 'post'
+                            , done: function (res) {
+                                console.log(res);
+                            }
+                        });
+                        location.hash = search.redirect ? decodeURIComponent(search.redirect) : '/';
+                    });
+                },
+                complete:function(){
+                    $(".login-button").hide();
+                }
+            });
+
+        });
+    });
+
+    // 登陆时密码回车自动登陆
+    function KeyDown() {
+        if (event.keyCode == 13) {
+            document.getElementById("user-login-submit").click();
+        }
+    }
+</script>

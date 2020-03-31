@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="/start/layui/css/layui.css">
+	<link rel="stylesheet" type="text/css" href="/start/layui/css/modules/tree2_5_5.css">
+	<style>
+		/*-----公共样式------------------------------------------------------------------------------------------------*/
+		.main-page {
+			display: flex;
+			justify-content: center;
+		}
+
+		.side-table{
+			width: 450px;
+		}
+
+		.center-button{
+			padding:200px 20px 0;
+			width: 70px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.model-content {
+			padding: 20px;
+		}
+
+		.top-title {
+			padding: 0 20px 20px;
+			text-align: center;
+		}
+
+		.layui-input.search {
+			height: 30px;
+			line-height: 30px;
+		}
+
+	</style>
+</head>
+<body>
+<div class="model-content">
+	<div class="main-page">
+		<div class="side-table">
+			<p class="top-title">未关联用户列表</p>
+			<div class="table-search">
+				<span>关键字:</span>
+				<div class="layui-inline">
+					<input type="text" name="keywordl"
+						   autocomplete="off" class="layui-input search">
+				</div>
+				<button class="layui-btn layui-btn-sm layui-btn-normal" id="search-not-associated">&nbsp;查询&nbsp;
+				</button>
+			</div>
+			<table id="not-associated-list" lay-filter="not-associated-list"></table>
+		</div>
+		<div class="center-button" style="text-align: center;padding-top: 200px;">
+			<div><button class="layui-btn layui-btn-sm layui-btn-normal add-right">
+				<i class="layui-icon">&#xe602;</i>增加
+			</button></div>
+			<div style="padding-top:10px"><button class="layui-btn layui-btn-sm layui-btn-primary remove-left">
+				<i class="layui-icon">&#xe603;</i>移除
+			</button></div>
+		</div>
+		<div class="side-table">
+			<p class="top-title">已关联用户列表</p>
+			<div class="table-search">
+				<span>关键字:</span>
+				<div class="layui-inline">
+					<input type="text" name="keywordr"
+						   autocomplete="off" class="layui-input search">
+				</div>
+				<button class="layui-btn layui-btn-sm layui-btn-normal" id="search-associated">&nbsp;查询&nbsp;</button>
+			</div>
+			<table id="associated-list" lay-filter="associated-list"></table>
+		</div>
+	</div>
+</div>
+<script src="/start/layui/layui.all.js"></script>
+<script src="../../../../config.js"></script>
+<script src="/start/js/method.js"></script>
+<script>
+  var {currentRoleTypeInfo, appCode} = parent,
+      {id} = currentRoleTypeInfo,
+      roleId = id,
+      form,
+      table;
+  /*-----事件----------------------------------------------------------------------------------------------------------*/
+  layui.use(["form", "table", "tree"], function () {
+    form = layui.form;
+    table = layui.table;
+
+    //初始化两个列表
+    //not-associated-list
+    renderAllTables()
+  });
+
+  /*-----两个搜索事件-------------------------------------------------------------------------------------------------------*/
+  $("#search-not-associated").click(function () {
+    renderTable({
+      urlType: "notLinkedList",
+      elem: "not-associated-list",
+      keywordElem: 'input[name="keywordl"]'
+    });
+  });
+  $("#search-associated").click(function () {
+    renderTable({
+      urlType: "getGroupUsers",
+      elem: "associated-list",
+      type: 1,
+      keywordElem: 'input[name="keywordr"]'
+    });
+  });
+  /*-----用户移动事件-------------------------------------------------------------------------------------------------------*/
+  $(".add-right").click(function () {
+    addOrRemoveUsers({
+      url: "/api/admin/group/addGroupUsers",
+      type: "POST",
+      msg: "增加成功",
+      tableElem: "not-associated-list"
+    })
+  });
+
+  $(".remove-left").click(function () {
+    addOrRemoveUsers({
+      url: "/api/admin/group/delGroupUsers",
+      type: "DELETE",
+      msg: "移除成功",
+      tableElem: "associated-list"
+    })
+  });
+  /*-----公共方法-------------------------------------------------------------------------------------------------------*/
+  //渲染table
+  function renderTable({urlType, keywordElem, elem, type}) {
+    let url,
+        keyword = $(keywordElem).val();
+    if (urlType === "notLinkedList") {
+      url = `/api/admin/user/notLinkedList?groupId=${roleId}&keyword=${keyword || ""}`;
+    } else if (urlType === "getGroupUsers") {
+      url = `/api/admin/group/getGroupUsers?keyword=${keyword || ""}&type=${type}&groupId=${roleId}`
+    }
+    table.render({
+      url,
+      elem: `#${elem}`,
+      height: 'full-120',
+      page: true,
+      headers: {Authorization: layui.data(setter.tableName)[setter.request.tokenName]},
+      limits: [20, 40],
+      limit: 20,
+      parseData: function (res) {
+        return {
+          code: "0",
+          msg: res.message,
+          count: res.data.total,
+          data: res.data.rows.map(item => ({
+            ...item,
+          }))
+        };
+      },
+      cols: [[
+        {type: "checkbox", width: 50, fixed: "left"},
+        {field: 'username', title: '登录名'},
+        {field: 'name', title: '姓名'},
+      ]]
+    });
+  }
+
+  //渲染两个table
+  function renderAllTables() {
+    renderTable({
+      urlType: "notLinkedList",
+      elem: "not-associated-list",
+      keywordElem: 'input[name="keywordl"]'
+    });
+    renderTable({
+      urlType: "getGroupUsers",
+      elem: "associated-list",
+      type: 1,
+      keywordElem: 'input[name="keywordr"]'
+    });
+  }
+
+  //  获取表格的选中情况
+  function getTableCheckStatus(elem, callback) {
+    let data = table.checkStatus(elem);
+    if (data.data.length === 0) {
+      layer.msg("未选择用户");
+      return;
+    }
+    callback(data)
+  }
+
+  //增加或者移除用户
+  function addOrRemoveUsers({url, type, msg, tableElem}) {
+    getTableCheckStatus(tableElem, function (data) {
+      let params = {
+        groupId: roleId,
+        members: data.data.map(item => item.id).join(","),
+        leaders: ""
+      };
+      if (type === "DELETE") {
+        params = JSON.stringify(params);
+      }
+      ajax({
+        url,
+        type,
+        data: params,
+        callback: function () {
+          layer.msg(msg);
+          renderAllTables()
+        }
+      })
+    })
+  }
+</script>
+</body>

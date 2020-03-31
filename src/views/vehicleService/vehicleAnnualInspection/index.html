@@ -1,0 +1,330 @@
+<title>年检记录</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>年检记录</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleAnnualInspection">
+    <div class="layui-card bgf2">
+        <form action="" class="layui-form layui-form-pane" lay-filter="component-form-group-vehicleAnnualInspection">
+            <blockquote class="layui-elem-quote news_search active">
+
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="carNumberLike" placeholder="请输入车牌号" type="text">
+                    </div>
+                </div>
+
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">年检日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="inspectionTimeLike"
+                               name="inspectionTimeLike" placeholder="请选择" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">到期日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="expirationTimeLike"
+                               name="expirationTimeLike" placeholder="请选择" type="text">
+                    </div>
+                </div>
+
+
+                <div class="layui-inline inline btn" id="vehicleAnnualInspectionSearch"></div>
+                <i class="layui-icon layui-icon-up search-icon"></i>
+            </blockquote>
+        </form>
+
+        <table class="layui-hide" id="test-table-toolbar-vehicleAnnualInspection"
+               lay-filter="test-table-toolbar-vehicleAnnualInspection"></table>
+        <script id="vehicleAnnualInspectionSearchTpl" type="text/html">
+            {{#  if(AnnualInspectionPageElement.admin_get_inspection_page){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="component-form-vehicleAnnualInspection">查询</button>
+            {{#  } }}
+            {{#  if(AnnualInspectionPageElement.admin_create_inspection){ }}
+            <a class="layui-btn" data-type="add">新增</a>
+            {{#  } }}
+
+        </script>
+        <script id="test-table-toolbar-barDemo-vehicleAnnualInspection" type="text/html">
+
+
+            {{# if(AnnualInspectionPageElement.admin_edit_inspection){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit">编辑</a>
+            {{# } }}
+            {{# if(AnnualInspectionPageElement.admin_del_inspection){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="delete">删除</a>
+            {{# } }}
+        </script>
+    </div>
+</div>
+
+<script>
+    var reload = null,
+        where = {},
+        AnnualInspectionPageElement = {};
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        AnnualInspectionPageElement = admin.getConfigPower("vehicleAnnualInspection");
+
+        admin.renderTpl("vehicleAnnualInspectionSearch", "vehicleAnnualInspectionSearchTpl");
+
+        form.render(null, 'component-form-group-vehicleAnnualInspection');
+
+        laydate.render({
+            elem: '#inspectionTimeLike',
+            trigger: 'click',
+            type: 'date'
+        });
+        laydate.render({
+            elem: '#expirationTimeLike',
+            trigger: 'click',
+            type: 'date'
+        });
+
+
+        form.on('submit(component-form-vehicleAnnualInspection)', function (data) {
+            where = data.field;
+            reload("test-table-toolbar-vehicleAnnualInspection");
+            return false;
+        });
+
+        $('.vehicleAnnualInspection .search-icon').click(function () {
+            $('.vehicleAnnualInspection .news_search').toggleClass('active');
+        });
+
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAnnualInspection.html',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            details: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '详情',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAnnualInspection.html?id=' + id + '&details=true',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            edit: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAnnualInspection.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            delete: function (id) {
+                layer.confirm('确定删除此数据？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    admin.req({
+                        type: 'DELETE',
+                        url: '/api/logistics_intelligent/vehicle/annual/inspection/admin/' + id,
+                    });
+                    reload("test-table-toolbar-vehicleAnnualInspection");
+                    layer.close(index)
+                })
+            }
+        };
+
+        $('.vehicleAnnualInspection').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+
+        table.render({
+            elem: '#test-table-toolbar-vehicleAnnualInspection'
+            , url: '/api/logistics_intelligent/vehicle/annual/inspection/admin/page/v2'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            // ,toolbar: '#test-table-toolbar-toolbarDemo'
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    toolbar: '#test-table-toolbar-barDemo-vehicleAnnualInspection',
+                    width: 110
+                }, {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'regionName',
+                    width: 110,
+                    align: 'left',
+                    title: '区域',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'companyName',
+                    width: 110,
+                    align: 'left',
+                    title: '公司',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'departmentName',
+                    width: 110,
+                    align: 'left',
+                    title: '部门',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleTypeText',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆类型',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleBrand',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆品牌',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleModel',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆型号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'inspectionTime',
+                    width: 180,
+                    align: 'left',
+                    title: '年检时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'expirationTime',
+                    width: 180,
+                    align: 'left',
+                    title: '到期时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'expirationWarningDays',
+                    width: 160,
+                    align: 'left',
+                    title: '到期预警提前天数',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'inspectionNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '年检号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'inspectionFee',
+                    width: 110,
+                    align: 'right',
+                    title: '年检费用',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'dmv',
+                    width: 110,
+                    align: 'left',
+                    title: '车管所',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'operator',
+                    width: 110,
+                    align: 'left',
+                    title: '经办人',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'remark',
+                    width: 110,
+                    align: 'left',
+                    title: '备注',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+
+    });
+</script>

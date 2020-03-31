@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="stylesheet" href="/start/layui/css/layui.css" media="all">
+	<style>
+
+		.page {
+			margin: 0 10px
+		}
+	</style>
+</head>
+<body>
+<div class="page">
+	<table id="only-table"></table>
+</div>
+
+</body>
+</html>
+
+<script src="/start/layui/layui.all.js"></script>
+<script src="../../../config.js"></script>
+<script src="/start/js/method.js"></script>
+<script>
+    var userOnlineInformationList = JSON.parse(localStorage.getItem("userOnlineInformationList")).list;
+    console.log({userOnlineInformationList});
+    layui.use(["table"], function () {
+        var table = layui.table;
+        table.render({
+            elem: '#only-table',
+            height: layui.setter.tableHeight,
+            data: userOnlineInformationList,
+            cols: [[
+                {title: "序号", width: 80, type: "numbers"},
+                {field: 'name', title: '用户名', width: 80},
+                {field: 'jobNo', title: '工号'},
+                {field: 'shortName', title: '部门'},
+                {field: 'job', title: '岗位'},
+            ]],
+            page: true,
+            limit: 10,
+            limits: [10, 20]
+        })
+    })
+</script>

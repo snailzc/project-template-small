@@ -1,0 +1,322 @@
+<title>违章记录</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>违章记录</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleViolation">
+    <div class="layui-card bgf2">
+        <form action="" class="layui-form layui-form-pane" lay-filter="component-form-group-vehicleViolation">
+            <blockquote class="layui-elem-quote news_search active">
+
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="carNumberLike" placeholder="请输入车牌号" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">司机姓名</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="driverUserNameLike" placeholder="请输入司机姓名" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">违章日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="violationTime"
+                               name="violationTimeLike" placeholder="请选择" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">违章项目</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="violationEntryTextLike" placeholder="请输入违章项目" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">违章地点</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="violationLocationLike" placeholder="请输入违章地点" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline btn" id="vehicleViolationSearch"></div>
+                <i class="layui-icon layui-icon-up search-icon"></i>
+            </blockquote>
+        </form>
+
+        <table class="layui-hide" id="test-table-toolbar-vehicleViolation"
+               lay-filter="test-table-toolbar-vehicleViolation"></table>
+
+        <script id="vehicleViolationSearchTpl" type="text/html">
+            {{#  if(ViolationPageElement.admin_get_violation_page){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="component-form-vehicleViolation">查询</button>
+            {{#  } }}
+            {{#  if(ViolationPageElement.admin_create_violation){ }}
+            <a class="layui-btn" data-type="add">新增</a>
+            {{#  } }}
+
+        </script>
+        <script id="test-table-toolbar-barDemo-vehicleViolation" type="text/html">
+
+            {{# if(ViolationPageElement.admin_edit_violation){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit">编辑</a>
+            {{# } }}
+            {{# if(ViolationPageElement.admin_del_violation){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="delete">删除</a>
+            {{# } }}
+        </script>
+    </div>
+</div>
+
+<script>
+    var reload = null,
+        where = {},
+        ViolationPageElement = {};
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        ViolationPageElement = admin.getConfigPower("vehicleViolation");
+
+        admin.renderTpl("vehicleViolationSearch", "vehicleViolationSearchTpl");
+
+        form.render(null, 'component-form-group-vehicleViolation');
+
+        laydate.render({
+            elem: '#violationTime',
+            trigger: 'click',
+            type: 'date'
+        });
+
+        form.on('submit(component-form-vehicleViolation)', function (data) {
+            where = data.field;
+            reload("test-table-toolbar-vehicleViolation");
+            return false;
+        });
+
+        $('.vehicleViolation .search-icon').click(function () {
+            $('.vehicleViolation .news_search').toggleClass('active');
+        });
+
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleViolation.html',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            details: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '详情',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleViolation.html?id=' + id + '&details=true',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            edit: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleViolation.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            delete: function (id) {
+                layer.confirm('确定删除此数据？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    admin.req({
+                        type: 'DELETE',
+                        url: '/api/logistics_intelligent/vehicle/violation/admin/' + id,
+                    });
+                    reload("test-table-toolbar-vehicleViolation");
+                    layer.close(index)
+                })
+            }
+        };
+
+        $('.vehicleViolation').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+
+        table.render({
+            elem: '#test-table-toolbar-vehicleViolation'
+            , url: '/api/logistics_intelligent/vehicle/violation/admin/page/v2'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            // ,toolbar: '#test-table-toolbar-toolbarDemo'
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    toolbar: '#test-table-toolbar-barDemo-vehicleViolation',
+                    width: 110
+                }, {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    templet: function (record) {
+                        console.info(record);
+                        let color = record.currentMonthCount >= 2 ? 'red' : 'orange';
+                        return '<span style="color: ' + color + '">' + record.carNumber + '</span>'
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'currentMonthCount',
+                    width: 125,
+                    align: 'right',
+                    title: '本月违章次数',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'driverUserName',
+                    width: 110,
+                    align: 'left',
+                    title: '司机名称',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'violationTime',
+                    width: 180,
+                    align: 'left',
+                    title: '违章时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'reimbursementTime',
+                    width: 180,
+                    align: 'left',
+                    title: '报销时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'violationLocation',
+                    width: 110,
+                    align: 'left',
+                    title: '违章地点',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'violationEntryText',
+                    width: 110,
+                    align: 'left',
+                    title: '违章项目',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'deductScore',
+                    width: 80,
+                    align: 'right',
+                    title: '扣分',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'fineAmount',
+                    width: 110,
+                    align: 'right',
+                    title: '罚款金额',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'companyBear',
+                    width: 130,
+                    align: 'left',
+                    title: '是否公司承担',
+                    templet: function (record) {
+                        return record.companyBear == 0 ? '否' : '是';
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'companyBearAmount',
+                    width: 130,
+                    align: 'right',
+                    title: '公司承担金额',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'driverBear',
+                    width: 110,
+                    align: 'left',
+                    title: '司机承担',
+                    templet: function (record) {
+                        return record.driverBear == 0 ? '否' : '是';
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+
+    });
+</script>

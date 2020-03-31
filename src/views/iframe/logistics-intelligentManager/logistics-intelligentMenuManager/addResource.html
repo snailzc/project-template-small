@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="/start/layui/css/layui.css">
+</head>
+<body>
+
+<form class="layui-form" lay-filter="new-resource-form" style="padding:20px">
+	<div class="layui-form-item">
+		<label class="layui-form-label">资源编码</label>
+		<div class="layui-input-block">
+			<input type="text" name="code" required lay-verify="required"
+				   autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">资源类型</label>
+		<div class="layui-input-block">
+			<select name="type" required lay-verify="required">
+				<option value="">请选择</option>
+				<option value="URI">URI</option>
+				<option value="BUTTON">BUTTON</option>
+				<option value="HttpRestful">HttpRestful</option>
+				<option value="WebService">WebService</option>
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">资源名称</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" required lay-verify="required"
+				   autocomplete="off" class="layui-input pointer aleft">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">资源地址</label>
+		<div class="layui-input-block">
+			<input type="text" name="uri" required lay-verify="required"
+
+				   autocomplete="off" class="layui-input pointer aleft">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">资源请求类型</label>
+		<div class="layui-input-block">
+			<select name="method" required lay-verify="required">
+				<option value="">请选择</option>
+				<option value="GET">GET</option>
+				<option value="POST">POST</option>
+				<option value="PUT">PUT</option>
+				<option value="DELETE">DELETE</option>
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item" style="text-align: center">
+		<button class="layui-btn layui-btn-sm layui-btn-normal save-menu" type="button"
+				lay-filter="save-resource"
+				lay-submit>
+			&nbsp;确认&nbsp;
+		</button>
+		<button class="layui-btn layui-btn-sm  layui-btn-primary" type="button"
+				lay-filter="cancel-resource" lay-submit>
+			&nbsp;取消&nbsp;
+		</button>
+	</div>
+</form>
+<script src="/start/layui/layui.all.js"></script>
+<script src="../../../../config.js"></script>
+<script src="/start/js/method.js"></script>
+<script>
+  var frameIndex = parent.layer.getFrameIndex(window.name);
+  layui.use("form", function () {
+    var form = layui.form,
+        layer = layui.layer,
+        {currentSelectedMenu, resourceInfoToEdit} = parent,
+        isEdit = resourceInfoToEdit.isEdit;
+
+    console.log({isEdit, resourceInfoToEdit});
+
+    if (isEdit) {
+      form.val('new-resource-form', {...resourceInfoToEdit});
+    }
+
+    form.on("submit(save-resource)", function (data) {
+      console.log({params: data.field, resourceInfoToEdit});
+      let {id, menuid, appCode} = resourceInfoToEdit || {};
+      let params = {
+        ...data.field,
+        id, menuid, appCode
+      };
+      let url = `/api/admin/element/${isEdit ? id : 'v1'}`;
+      ajax({
+        url,
+        type: isEdit ? "PUT" : "POST",
+        data: params,
+        callback: function (res) {
+          if (res.status === 200 && res.rel) {
+            parent.layer.close(frameIndex);
+            parent.querytableDataByName();
+            if (isEdit) {
+              parent.layer.msg("更新成功")
+            } else {
+              parent.layer.open({
+                title: "请复制下面的SQL语句",
+                content: `<textarea class="sql-textarea">${res.data}</textarea>`
+              });
+            }
+          } else {
+            layer.msg("新增失败")
+          }
+        }
+      });
+      console.log({params})
+    });
+    form.on("submit(cancel-resource)", function (data) {
+      console.log({data})
+    });
+  })
+</script>
+</body>

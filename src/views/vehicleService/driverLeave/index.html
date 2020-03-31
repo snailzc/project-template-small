@@ -1,0 +1,395 @@
+<title>司机请假</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>司机请假</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid driverLeave">
+    <div class="layui-card bgf2">
+        <form action="" class="layui-form layui-form-pane" lay-filter="component-form-group-driverLeave">
+            <blockquote class="layui-elem-quote news_search active">
+
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="carNumberLike" placeholder="请输入车牌号" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">司机姓名</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="driverUserNameLike" placeholder="请输入司机姓名" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">申请离开日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="initLeaveTime"
+                               name="initLeaveTimeLike" placeholder="请选择" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">处理状态</label>
+                    <div class="layui-input-inline">
+                        <select name="status" lay-verify="">
+                            <option value="">--请选择--</option>
+                            <option value="0">待审批</option>
+                            <option value="1">已批准</option>
+                            <option value="2">被驳回</option>
+                            <option value="3">已回归</option>
+                            <option value="4">已取消</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">是否申请回归</label>
+                    <div class="layui-input-inline">
+                        <select name="applyReturn" lay-verify="">
+                            <option value="">--请选择--</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="layui-inline inline btn" id="driverLeaveSearch"></div>
+                <i class="layui-icon layui-icon-up search-icon"></i>
+            </blockquote>
+        </form>
+
+        <table class="layui-hide" id="test-table-toolbar-driverLeave"
+               lay-filter="test-table-toolbar-driverLeave"></table>
+
+        <script id="driverLeaveSearchTpl" type="text/html">
+            {{#  if(driverLeaveElement.admin_get_leave_page){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="component-form-driverLeave">查询</button>
+            {{#  } }}
+
+        </script>
+        <script id="test-table-toolbar-barDemo-driverLeave" type="text/html">
+
+
+            {{# if(driverLeaveElement.admin_accept_leave && d.status === 0){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="acceptLeave">同意</a>
+            {{# } else { }}
+            <a class="layui-btn layui-btn-disabled layui-btn-xs">同意</a>
+            {{# }  }}
+            {{# if(driverLeaveElement.admin_reject_leave && d.status === 0){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="rejectLeave">驳回</a>
+            {{# } else { }}
+            <a class="layui-btn layui-btn-disabled layui-btn-xs">驳回</a>
+            {{# }  }}
+
+            {{# if(driverLeaveElement.admin_accept_return && d.status === 1){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="acceptReturn">确认回归</a>
+            {{# } else { }}
+            <a class="layui-btn layui-btn-disabled layui-btn-xs">确认回归</a>
+            {{# }  }}
+        </script>
+    </div>
+</div>
+
+<script src="/start/js/method.js"></script>
+<script>
+    var reload = null,
+        where = {},
+        driverLeaveElement = {};
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        driverLeaveElement = admin.getConfigPower("driverLeave");
+
+        admin.renderTpl("driverLeaveSearch", "driverLeaveSearchTpl");
+
+        form.render(null, 'component-form-group-driverLeave');
+
+        laydate.render({
+            elem: '#initLeaveTime',
+            trigger: 'click',
+            type: 'date'
+        });
+
+        form.on('submit(component-form-driverLeave)', function (data) {
+            where = data.field;
+            reload("test-table-toolbar-driverLeave");
+            return false;
+        });
+
+        $('.driverLeave .search-icon').click(function () {
+            $('.driverLeave .news_search').toggleClass('active');
+        });
+
+        var active = {
+            acceptReturn: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/acceptReturn.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            rejectLeave: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '驳回',
+                    content: layui.setter.base + 'views/iframe/vehicleService/rejectLeave.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            acceptLeave: function (id) {
+                layer.confirm('确认同意司机离开申请？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    ajax({
+                        type: 'PUT',
+                        data: {"id":id},
+                        url: '/api/logistics_intelligent/driver/leave/admin/accept/leave',
+                        callback: function (result) {
+                            console.info(result);
+
+                            if(result.rel){
+                                reload("test-table-toolbar-driverLeave");
+                                layer.close(index)
+                            }
+                            else{
+                                layer.alert(result.message)
+                            }
+                        }
+                    });
+                });
+            }
+        };
+
+        $('.driverLeave').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+
+        table.render({
+            elem: '#test-table-toolbar-driverLeave'
+            , url: '/api/logistics_intelligent/driver/leave/admin/page'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            // ,toolbar: '#test-table-toolbar-toolbarDemo'
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    toolbar: '#test-table-toolbar-barDemo-driverLeave',
+                    width: 170
+                },
+                {
+                    field: 'status',
+                    width: 110,
+                    align: 'left',
+                    title: '处理状态',
+                    templet: function (record) {
+
+                        if (record.status === 0) {
+                            return '待审批';
+                        }
+                        if (record.status === 1) {
+                            return '已批准';
+                        }
+                        if (record.status === 2) {
+                            return '被驳回';
+                        }
+                        if (record.status === 3) {
+                            return '已回归';
+                        }
+                        if (record.status === 4) {
+                            return '已取消';
+                        }
+                        return '未知状态';
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'applyReturn',
+                    width: 170,
+                    align: 'left',
+                    title: '司机是否申请回归',
+                    templet:function(record){
+                        if(record.applyReturn === 0){
+                            return '未申请';
+                        }
+                        if(record.applyReturn === 1){
+                            return '已申请';
+                        }
+                        return '未知';
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'userName',
+                    width: 110,
+                    align: 'left',
+                    title: '司机名称',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'userPhone',
+                    width: 130,
+                    align: 'left',
+                    title: '司机电话',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'isIntra',
+                    width: 110,
+                    align: 'left',
+                    title: '业务区域',
+                    templet: function (record) {
+                        if (record.isIntra === 0) {
+                            return '内部';
+                        }
+                        if (record.isIntra === 1) {
+                            return '外部';
+                        }
+                        return '未知';
+                    },
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'initLeaveTime',
+                    width: 170,
+                    align: 'left',
+                    title: '申请离开时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'initReturnTime',
+                    width: 170,
+                    align: 'left',
+                    title: '申请回归时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'driverLeaveRemark',
+                    width: 170,
+                    align: 'left',
+                    title: '申请离开原因备注',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'handOverRemark',
+                    width: 170,
+                    align: 'left',
+                    title: '交接情况',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'adminRejectRemark',
+                    width: 170,
+                    align: 'left',
+                    title: '驳回原因备注',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'applyReturnTime',
+                    width: 170,
+                    align: 'left',
+                    title: '销假申请回归时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'applyReturnRemark',
+                    width: 170,
+                    align: 'left',
+                    title: '销假申请回归备注',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'actualReturnTime',
+                    width: 170,
+                    align: 'left',
+                    title: '实际回归时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'adminReturnRemark',
+                    width: 170,
+                    align: 'left',
+                    title: '管理员回归备注',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+
+    });
+</script>

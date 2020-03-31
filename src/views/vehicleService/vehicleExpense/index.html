@@ -1,0 +1,261 @@
+<title>车辆规定费用</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>车辆规定费用</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleExpense">
+    <div class="layui-card bgf2">
+
+        <!-- 搜索表单 -->
+        <form class="layui-form layui-form-pane" lay-filter="form-vehicleExpense">
+            <blockquote class="layui-elem-quote news_search active">
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input name="carNumber" class="layui-input" type="text" placeholder="请输入车牌号">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">费用项目</label>
+                    <div class="layui-input-inline">
+                        <input name="expenseItem" class="layui-input" type="text" placeholder="请输入费用项目">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">结算类型</label>
+                    <div class="layui-input-inline">
+                        <select name="settleType">
+                            <option value="">请选择</option>
+                            <option value="0">一次性结算</option>
+                            <option value="1">周期结算</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline inline btn" id="vehicleExpense-search"></div>
+
+                <i class="layui-icon layui-icon-up search-icon"></i>
+
+            </blockquote>
+        </form>
+
+        <!-- table列表对象 -->
+        <table class="layui-hide" id="table-vehicleExpense" lay-filter="table-vehicleExpense"></table>
+
+        <script id="vehicleExpense-search-tpl" type="text/html">
+            {{#  if(vehicleExpensePageElement.get_page_list){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="submit-search-vehicleExpense">查询</button>
+            {{#  } }}
+            {{#  if(vehicleExpensePageElement.add){ }}
+            <a class="layui-btn"  data-type="add">新 增</a>
+            {{#  } }}
+        </script>
+
+        <script type="text/html" id="table-vehicleExpense-toolbar">
+            {{# if(vehicleExpensePageElement.get_one){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="details">查看</a>
+            {{# } }}
+            {{# if(vehicleExpensePageElement.edit){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit">编辑</a>
+            {{# } }}
+            {{# if(vehicleExpensePageElement.delete){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="del">删除</a>
+            {{# } }}
+        </script>
+
+    </div>
+</div>
+
+<script>
+    var reload = null,
+        where = {},
+        vehicleExpensePageElement = {};
+
+    var settleTypeArr = ['一次性结算','周期结算'];
+
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        let $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        vehicleExpensePageElement = admin.getConfigPower("vehicleExpense");
+
+        admin.renderTpl("vehicleExpense-search", "vehicleExpense-search-tpl");
+
+        // 表单渲染
+        form.render(null, 'form-vehicleExpense');
+
+        // 查询
+        form.on('submit(submit-search-vehicleExpense)', function (data) {
+            where = data.field;
+            reload('table-vehicleExpense');
+            return false;
+        });
+
+        // 搜索隐藏
+        $('.vehicleExpense .search-icon').click(function () {
+            $('.vehicleExpense .news_search').toggleClass('active');
+        });
+
+        // 按钮的操作
+        let active = {
+            add: function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleExpense.html',
+                    shadeClose: true,
+                    area: ['35%', '500px'],
+                    maxmin: true
+                });
+            },
+            details: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '详情',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleExpense.html?id=' + id + '&details=true',
+                    shadeClose: true,
+                    area: ['35%', '450px'],
+                    maxmin: true
+                });
+            },
+            edit: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleExpense.html?id=' + id,
+                    shadeClose: true,
+                    area: ['35%', '500px'],
+                    maxmin: true
+                });
+            },
+            del: function (id) {
+                layer.confirm('确定删除此数据？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    admin.req({
+                        type: 'DELETE',
+                        url: '/api/logistics_intelligent/myVehicleExpense/delete/id?ids=' + id,
+                    });
+                    reload('table-vehicleExpense');
+                    layer.close(index)
+                })
+            }
+        };
+
+        $('.vehicleExpense').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+
+        // table渲染
+        table.render({
+            elem: '#table-vehicleExpense'
+            , url: '/api/logistics_intelligent/myVehicleExpense/pageList'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    templet: '#table-vehicleExpense-toolbar',
+                    width: 153
+                }, {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'expenseItem',
+                    width: 110,
+                    align: 'left',
+                    title: '费用项目',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'settleType',
+                    width: 110,
+                    align: 'left',
+                    title: '结算类型',
+                    templet: function (res) {
+                        return settleTypeArr[res.settleType]
+                    }
+                }, {
+                    field: 'amount',
+                    width: 100,
+                    align: 'right',
+                    title: '金额',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'insuredDate',
+                    width: 140,
+                    align: 'left',
+                    title: '办理日期',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'expirationDate',
+                    width: 140,
+                    align: 'left',
+                    title: '截止日期',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'warningDays',
+                    width: 129,
+                    align: 'left',
+                    title: '提前预警天数',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+
+    });
+</script>

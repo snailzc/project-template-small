@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>菜单管理</title>
+	<link rel="stylesheet" type="text/css" href="/start/layui/css/modules/tree2_5_5.css">
+	<style>
+		/*-----公共样式--------------------------------------------------------------------------------------------------*/
+		.border-box {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		.flex {
+			display: flex;
+		}
+
+		.bet {
+			justify-content: space-between;
+		}
+
+		.align-center {
+			justify-content: space-between;
+		}
+
+		.display-none {
+			display: none;
+		}
+
+		.pointer {
+			cursor: pointer;
+		}
+
+		.aleft {
+			text-align: left;
+		}
+
+		.sql-textarea {
+			width: 300px;
+			height: 126px;
+			padding: 4px 10px;
+			font-size: 14px
+		}
+		/*-----总体样式--------------------------------------------------------------------------------------------------*/
+		.page-container {
+			padding: 0 20px;
+		}
+
+		.layui-btn-container.operation-buttons {
+			padding: 20px 10px 0;
+		}
+
+		/*-----右侧样式--------------------------------------------------------------------------------------------------*/
+
+		.operation-line{
+			padding-bottom: 10px;
+		}
+
+		.operation-line input {
+			display: inline-block;
+			width: auto;
+			padding: 1px 7px;
+			height: 22px;
+			line-height: 22px;
+		}
+
+		.operation-line .layui-btn.layui-btn-xs {
+			margin-bottom: 0;
+		}
+
+		.layui-form.right-resource-add {
+			min-width: 600px;
+		}
+
+		.layui-form.right-resource-add .layui-form-label{
+			width: 110px!important;/*important是不应该写的，但是被某一个important给乱了样式，不得已而为之*/
+		}
+
+		.required{
+			color: red;
+			margin-right:5px
+		}
+	</style>
+</head>
+<body>
+<div class="page-container border-box">
+	<div class="layui-btn-container operation-buttons">
+		<button class="layui-btn layui-btn-xs layui-btn-normal add-menu">
+			<i class="layui-icon">&#xe654;</i> 新增
+		</button>
+		<button class="layui-btn layui-btn-xs layui-btn-primary display-none button-edit-menu edit-menu">
+			<i class="layui-icon">&#xe642;</i>编辑
+		</button>
+		<button class="layui-btn layui-btn-xs  layui-btn-danger display-none button-del-menu del-menu">
+			<i class="layui-icon">&#xe640;</i>删除
+		</button>
+	</div>
+	<div class="main-content layui-row">
+		<!-- 树状结构 -->
+		<div class="layui-col-md4" style="overflow-y: auto;height: 550px;">
+			<div id="LAY-auth-tree">暂无数据</div>
+		</div>
+		<!-- 右侧内容 -->
+		<div class="right-area layui-col-md8">
+			<form class="layui-form layui-form-pane right-resource-add display-none" lay-filter="form-resource-add">
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span class="required">*</span>编码</label>
+					<div class="layui-input-block">
+						<input type="text" name="code" required lay-verify="required"
+							   autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span class="required">*</span>标题</label>
+					<div class="layui-input-block">
+						<input type="text" name="title" required lay-verify="required"
+							   autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<input type="text" name="parentId" required lay-verify="required"
+					   autocomplete="off" class="layui-input display-none">
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span class="required">*</span>父级节点</label>
+					<div class="layui-input-block">
+						<input type="button" name="parentNodeTitle" required lay-verify="required"
+							   id="select-menu-button"
+							   autocomplete="off" class="layui-input pointer aleft">
+						<div id="select-menu-tree" class="display-none"></div>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span class="required">*</span>图标</label>
+					<div class="layui-input-block">
+						<select name="icon" ><!--lay-verify="required"-->
+							<option value="">请选择</option>
+							<option value="lock">锁定</option>
+							<option value="unlock">不锁定</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span class="required">*</span>类型</label>
+					<div class="layui-input-block">
+						<select name="type" lay-verify="required">
+							<option value="">请选择</option>
+							<option value="menu">menu</option>
+							<option value="dirt">dirt</option>
+							<option value="report">report</option>
+						</select>
+					</div>
+				</div>
+				<!--<div class="layui-form-item">
+					<label class="layui-form-label">报表路径</label>
+					<div class="layui-input-block">
+						<input type="text" name="reportFormsPath" autocomplete="off" class="layui-input">
+					</div>
+				</div>-->
+				<div class="layui-form-item">
+					<label class="layui-form-label">排序</label>
+					<div class="layui-input-block">
+						<input type="number" name="orderNum" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">描述</label>
+					<div class="layui-input-block">
+						<input type="text" name="description" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item" style="text-align: center">
+					<button class="layui-btn layui-btn-sm layui-btn-normal save-menu" type="button"
+							lay-filter="save-menu-resource"
+							lay-submit>
+						&nbsp;保存&nbsp;
+					</button>
+					<button class="layui-btn layui-btn-sm layui-btn-normal display-none update-menu" type="button"
+							lay-filter="update-menu-resource"
+							lay-submit>
+						&nbsp;更新&nbsp;
+					</button>
+					<a class="layui-btn layui-btn-sm  layui-btn-primary" type="button"
+							lay-filter="cancel-menu-resource" lay-submit>
+						&nbsp;取消&nbsp;
+					</a>
+				</div>
+			</form>
+			<div class="right-resource-table">
+				<div class="operation-line flex bet">
+					<div class="layui-inline">
+						<span>资源名称：</span>
+						<input type="text" name="resource-name" placeholder="请输入资源名称" autocomplete="off"
+							   class="layui-input layui-inline">
+					</div>
+					<div class="layui-btn-container layui-inline">
+						<button class="layui-btn layui-btn-xs layui-btn-normal tr-query">
+							<i class="layui-icon">&#xe615;</i>查询
+						</button>
+						<button class="layui-btn layui-btn-xs layui-btn-primary tr-reset">
+							<i class="layui-icon">&#xe669;</i>重置
+						</button>
+						<button class="layui-btn layui-btn-xs  layui-btn-normal tr-add">
+							<i class="layui-icon">&#xe654;</i>新增元素
+						</button>
+					</div>
+				</div>
+				<table id="resource-table" lay-filter="resource-table"></table>
+			</div>
+		</div>
+
+	</div>
+
+</div>
+<script src="/start/js/method.js"></script>
+<script src="/start/js/logistics-intelligentManager/logistics-intelligentMenuManager/index.js"></script>
+</body>
+</html>

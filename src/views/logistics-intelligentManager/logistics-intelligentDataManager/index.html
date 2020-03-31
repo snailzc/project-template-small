@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>角色权限管理</title>
+	<link rel="stylesheet" type="text/css" href="/start/layui/css/modules/tree2_5_5.css">
+
+	<style>
+		/*-----总体样式--------------------------------------------------------------------------------------------------*/
+		.page-container {
+			padding: 7px;
+		}
+
+		.layui-form, .input-and-date {
+			align-items: center;
+		}
+
+		.input-and-date span {
+			white-space: nowrap;
+		}
+
+		.input-and-date span:not(:first-child) {
+			margin-left: 8px;
+		}
+
+		.input-and-date input {
+			width: auto;
+			padding: 1px 7px;
+			height: 22px;
+			line-height: 22px;
+		}
+
+		input[type="button"] {
+			cursor: pointer;
+		}
+
+		.input-and-date .input-date {
+			width: 200px;
+		}
+
+		.layui-table span:hover {
+			text-decoration: underline;
+		}
+
+		.layui-table .layui-table-sort-asc {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+<div class="page-container">
+	<form class="layui-form layui-form-pane only-form">
+		<blockquote class="layui-elem-quote news_search">
+			<div class="layui-inline inline">
+				<label class="layui-form-label">日期：</label>
+				<div class="layui-input-inline">
+					<input type="button" name="dateRange" class="layui-input input-date" id="input-date"
+						   autocomplete="off">
+				</div>
+			</div>
+			<div class="layui-inline inline">
+				<label class="layui-form-label">用户名：</label>
+				<div class="layui-input-inline">
+					<input type="text" name="username" autocomplete="off" class="layui-input username">
+				</div>
+			</div>
+			<div class="layui-inline inline">
+				<label class="layui-form-label">用户类型：</label>
+				<div class="layui-input-inline">
+					<select name="accountType" lay-verify="accountType">
+						<option value="">请选择</option>
+						<option value="0">运维</option>
+						<option value="1">内部</option>
+						<option value="2">外部</option>
+						<!--<option value="3">单项疾病外部</option>-->
+					</select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<button class="layui-btn layui-btn-normal" lay-submit type="button"
+						lay-filter="button-search">
+					<i class="layui-icon">&#xe615;</i>搜索
+				</button>
+				<button class="layui-btn layui-btn-primary" lay-submit type="button"
+						lay-filter="button-reset">·
+					<i class="layui-icon">&#xe669;</i>重置
+				</button>
+				<button class="layui-btn layui-btn-normal" lay-submit type="button"
+						lay-filter="button-edit">
+					<i class="layui-icon">&#xe642;</i>编辑
+				</button>
+			</div>
+		</blockquote>
+	</form>
+	<table id="only-table" lay-filter="only-table"></table>
+</div>
+
+<script src="/start/js/method.js"></script>
+<script src="/start/js/logistics-intelligentManager/logistics-intelligentDataManager/index.js"></script>
+</body>
+</html>

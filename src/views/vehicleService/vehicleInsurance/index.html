@@ -1,0 +1,74 @@
+<title>车辆保险</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>车辆保险</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleInsurance">
+    <div class="layui-card bgf2">
+
+        <!-- 搜索表单 -->
+        <form class="layui-form layui-form-pane" lay-filter="form-vehicleInsurance">
+            <blockquote class="layui-elem-quote news_search active">
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="carNumber" placeholder="请输入车牌号" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">保单号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="policyNo" placeholder="请输入保单号" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">投保公司</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="insuranceCompany" placeholder="请输入投保公司" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline btn" id="vehicleInsurance-search"></div>
+
+                <i class="layui-icon layui-icon-up search-icon"></i>
+
+            </blockquote>
+        </form>
+
+        <!-- table列表对象 -->
+        <table class="layui-hide" id="table-vehicleInsurance" lay-filter="table-vehicleInsurance"></table>
+
+        <script id="vehicleInsurance-search-tpl" type="text/html">
+            {{#  if(vehicleInsurancePageElement.get_page_list){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="submit-search-vehicleInsurance">查询</button>
+            {{#  } }}
+            {{#  if(vehicleInsurancePageElement.add){ }}
+            <a class="layui-btn"  data-type="add">新 增</a>
+            {{#  } }}
+        </script>
+
+        <script type="text/html" id="table-vehicleInsurance-toolbar">
+            {{# if(vehicleInsurancePageElement.get_one){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="details">查看</a>
+            {{# } }}
+            {{# if(vehicleInsurancePageElement.edit){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit">编辑</a>
+            {{# } }}
+            {{# if(vehicleInsurancePageElement.delete){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="del">删除</a>
+            {{# } }}
+        </script>
+
+    </div>
+</div>
+
+<script src="/start/js/method.js"></script>
+<script src="/start/js/vehicleService/vehicleInsurance/index.js"></script>

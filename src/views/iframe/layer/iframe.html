@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>layer iframe 示例</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="/start/layui/css/layui.css" media="all">
+  <style>
+    body {
+      padding: 10px;
+      font-size: 14px;
+      background: #fff;
+      width: 95%;
+      margin: 0 auto;
+      font-size: 14px;
+      line-height: 20px;
+      overflow: auto;
+    }
+    .layui-form-label {
+      position: relative;
+      color: rgb(85, 85, 85);
+      font-size: 13px;
+    }
+    .too-width .layui-form-label {
+      width: 150px !important;
+    }
+    .too-width .layui-input-block {
+      margin-left: 150px !important;
+    }
+    .required {
+      color: red;
+      font-size: 18px;
+      position: absolute;
+      line-height: 40px;
+      left: 10px;
+      top: 0px;
+      border-bottom: none;
+    }
+    .area {
+      width: 100%;
+      margin: 6px 0 10px 0;
+      border: solid 1px #e4e4e4;
+      background: #fff;
+    }
+    .area table {
+        width: 100%;
+        padding-left: 20px;
+        height: 50px;
+        line-height: 50px;
+    }
+    .img1 {
+      border-style: dotted;
+      width: 120px;
+      height: 100px;
+    }
+    div .img {
+        /* border-style: dotted; */
+        text-align: center;
+        height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="manage-form" class="layui-form layui-form-pane" action="" style="width:80%;margin:0 auto;margin-top: 2%;">
+    <div class="layui-form-item">
+      <label class="layui-form-label">发货人/发货企业</label>
+      <div class="layui-input-block">
+        <select id="staffType" name="staffType" lay-filter="select-memu" style="display: none;" lay-verify="required"
+          lay-search="">
+          <option value="0">发货人</option><!--  -->
+          <option value="1">发货企业</option> <!--  -->
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"><span class="required">*</span>手机号码</label>
+      <div class="layui-input-block">
+        <input name="phone" id="phone" autocomplete="off" onblur="checkPhone();" placeholder="请输入手机号码"
+          class="layui-input" type="text">
+        <input type="text" name="phone" disabled="disabled" style="display:none;" readonly="readonly">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">密码</label>
+      <div class="layui-input-block">
+        <input type="password" name="password" disabled readonly="readonly" style="display:none;" />
+        <input id="password" name="password" autocomplete="off" lay-verify="required" placeholder="请输入密码"
+          class="layui-input" type="text" value="098765">
+        <lable style="color:red;font-weight:bold;margin-left:20px;">(初始密码为 098765)</lable>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"><span class="required">*</span>姓名</label>
+      <div class="layui-input-block">
+        <input id="name" name="name" autocomplete="off" lay-verify="required" placeholder="请输入姓名" class="layui-input"
+          type="text">
+      </div>
+    </div>
+    <div class="layui-form-item" id="shenfenzhenghao">
+      <label class="layui-form-label"><span class="required">*</span>身份证号</label>
+      <div class="layui-input-block">
+        <input name="identificationNumber" id="identificationNumber" lay-verify="identity" autocomplete="off"
+          placeholder="请输入身份证号" class="layui-input" type="text">
+      </div>
+    </div>
+    <div id="fahuoqiye" style="display:none;">
+      <div class="layui-form-item" id="danweimingcheng">
+        <label class="layui-form-label"><span class="required">*</span>单位名称</label>
+        <div class="layui-input-block">
+          <input name="companyName" id="companyName" autocomplete="off" placeholder="请输入单位名称" class="layui-input"
+            type="text">
+        </div>
+      </div>
+      <div class="layui-form-item" id="yingyezhizhaohao">
+        <label class="layui-form-label"><span class="required">*</span>营业执照号</label>
+        <div class="layui-input-block">
+          <input id="businessLicenseImgNo" name="businessLicenseImgNo" autocomplete="off"
+            onblur="checkBusinessLicenseImgNo();" placeholder="请输入营业执照号" class="layui-input" type="text">
+        </div>
+      </div>
+      <div class="layui-form-item" id="shuihao">
+        <label class="layui-form-label">税号</label>
+        <div class="layui-input-block">
+          <input name="shuiNo" id="shuiNo" autocomplete="off" lay-verify="" onblur="checkShuiNo();" placeholder="请输入税号"
+            class="layui-input" type="text">
+        </div>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"><span class="required">*</span>所在区域</label>
+      <div class="layui-inline selectquyu" style="float: left;">
+        <select id="province" name="provinceCode" lay-verify="required" lay-filter="province" style="display: none;">
+        </select>
+      </div>
+      <div class="layui-inline selectquyu">
+        <select id="city" name="cityCode" lay-verify="required" lay-filter="city" style="display: none;">
+        </select>
+      </div>
+      <div class="layui-inline selectquyu">
+        <select id="county" name="countyCode" lay-verify="required" lay-filter="county" style="display: none;">
+        </select>
+      </div>
+      <style>
+        .selectquyu {
+          width: 30.93%;
+          margin-right: 3% !important;
+        }
+        .selectquyu:last-of-type {
+          margin-right: 0 !important;
+        }
+      </style>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"><span class="required">*</span>详细地址</label>
+      <div class="layui-input-block">
+        <input type="text" class="layui-input" lay-verify="required" id="address" name="address">
+      </div>
+    </div>
+
+    <div class="area" id="fahuoqiye2" style="display:none;">
+      <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding-left:30px;line-height:30px;">身份证正面</td>
+          <td style="padding-left:30px;line-height:30px;">身份证反面</td>
+          <td style="padding-left:40px;line-height:30px;">营业执照</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="img" style="margin-bottom:10px;"><img alt="选择身份证正面" class="img1" id="zhengmain"
+                onclick="imgClikc(this)" title="身份证正面" for="identificationImgFile"></div>
+          </td>
+          <td>
+            <div class="img" style="margin-bottom:10px;"><img alt="选择身份证反面" class="img1" id="fanmian"
+                onclick="imgClikc(this)" title="身份证反面" for="identificationBackImgFile"></div>
+          </td>
+          <td>
+            <div class="img" style="margin-bottom:10px;"><img alt="营业执照" class="img1" id="yingyezhizhao"
+                onclick="imgClikc(this)" title="营业执照" for="businessLicenseImgFile"></div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="fahuoren">
+      <div class="area">
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="line-height:20px;"><label style="margin-left: 40px;">身份证正面</label><span
+                style="color: red;border-bottom:none;">&nbsp;&nbsp;*&nbsp;&nbsp;</span></td>
+            <td style="line-height:20px;"><label style="margin-left: 50px;">营业执照</label></td>
+
+          <tr>
+          <tr>
+            <td>
+              <div class="img" style="margin-bottom:10px;"><img alt="点击选择身份证正面" class="img1" onclick="imgClikc(this)"
+                  title="身份证正面" id="shenfenzheng" for="identificationImgFile"></div>
+            </td>
+            <td>
+              <div class="img" style="margin-bottom:10px;"><img alt="点击选择营业执照" class="img1" onclick="imgClikc(this);"
+                  title="营业执照" id="yingyezhizhaos" for="businessLicenseImgFile"></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="layui-form-item too-width">
+      <label class="layui-form-label">是否审核承运人</label>
+      <div class="layui-input-block">
+        <select id="isReviewDriver" name="isReviewDriver" style="display: none;" lay-verify="" lay-search="">
+          <option value="0">否</option><!--  -->
+          <option value="1">是</option> <!--  -->
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item too-width">
+      <label class="layui-form-label">是否核算运单</label>
+      <div class="layui-input-block">
+        <select id="isIndependentCheckout" name="isIndependentCheckout" style="display: none;" lay-verify=""
+          lay-search="">
+          <option value="0">否</option><!--  -->
+          <option value="1">是</option> <!--  -->
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item too-width">
+      <label class="layui-form-label">是否月结客户</label>
+      <div class="layui-input-block">
+        <select id="isMonthlyClient" name="isMonthlyClient" style="display: none;" lay-verify="" lay-search="">
+          <option value="0">否</option>
+          <option value="1">是</option>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label" label="recommendedMan">推荐人</label>
+      <div class="layui-input-block">
+        <input id="recommendedMan" name="recommendedMan" autocomplete="off" lay-verify="" placeholder="请输入推荐人"
+          class="layui-input" type="text">
+      </div>
+    </div>
+    <!-- 			<div class="layui-form-item"> -->
+    <!--     				<label class="layui-form-label">营业执照到期日期</label> -->
+    <!--     				<div class="layui-input-block"> -->
+    <!--     				    <input type="text" name="shipmentDueDate" style="width:189px" id="shipmentDueDate" lay-verify="required" placeholder="" autocomplete="off" class="layui-input"> -->
+    <!--     				</div> -->
+    <!--     		   </div> -->
+    <div class="layui-form-item">
+      <label class="layui-form-label">税点(%)</label>
+      <div class="layui-input-block">
+        <input name="shuiPoint" autocomplete="off" lay-verify='number' placeholder="请输入税点" class="layui-input" value="0"
+          type="number">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <input type="checkbox" name="is_release_check" id="is_release_check" lay-filter="isReleaseCheck"
+        lay-skin="primary" title="货源是否需要平台审核">
+      <input type="hidden" name="isReleaseCheck" value="0" id="isReleaseCheck">
+    </div>
+    <div style="display:none;">
+      <div class="label-wrap"><label for="businessLicenseImg">营业执照</label></div>
+      <div class="ctn-wrap">
+        <input type="text" class="ui-input" name="businessLicenseImg">
+        <input type="file" class="ui-input" name="businessLicenseImgFile" id="businessLicenseImgFile"
+          onchange="ajaxFileUploadPic(this)">
+      </div>
+    </div>
+
+    <div style="display:none;">
+      <div class="label-wrap"><label for="identificationImg">身份证正面</label></div>
+      <div class="ctn-wrap">
+        <input type="text" class="ui-input" name="identificationImg">
+        <input type="file" class="ui-input" name="identificationImgFile" id="identificationImgFile"
+          onchange="ajaxFileUploadPic(this)">
+      </div>
+    </div>
+    <div style="display:none;">
+      <div class="label-wrap"><label for="identificationBackImg">身份证反面</label></div>
+      <div class="ctn-wrap">
+        <input type="text" class="ui-input" name="identificationBackImg">
+        <input type="file" class="ui-input" name="identificationBackImgFile" id="identificationBackImgFile"
+          onchange="ajaxFileUploadPic(this)">
+      </div>
+    </div>
+    <br>
+    <input type="hidden" name="code">
+    <input type="hidden" name="id">
+    <input type="hidden" name="rolecode" value="shipment">
+    <input type="hidden" id="userCode">
+    <div class="layui-form-item">
+      <div class="layui-input-block">
+        <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+      </div>
+    </div>
+  </form>
+  <input type="hidden" id="code" value="null">
+  <input type="hidden" id="opeid" value="null">
+  <!-- <input class="layui-input" placeholder="标记" id="LAY_mark"> -->
+
+  <!-- <div class="layui-btn-container">
+  <button class="layui-btn layui-btn-primary" data-type="auto">让层自适应iframe</button>
+  <button class="layui-btn layui-btn-primary" data-type="parentPopup">在父层弹出一个层</button>
+  <button class="layui-btn layui-btn-primary" data-type="setParent">给父页面传值</button>
+  <button class="layui-btn layui-btn-primary" data-type="close">在内部关闭iframe</button>
+</div> -->
+
+  <script src="/start/layui/layui.all.js"></script>
+  <script>
+    layui.use(['laydate', 'layer', 'admin', 'form'], function () {
+      var $ = layui.$,
+        layer = layui.layer,
+        form = layui.form,
+        index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
+      var active = {
+        //让层自适应iframe
+        auto: function () {
+            $('body').append('插入很多酱油。插入很多酱油。插入很多酱油。插入很多酱油。插入很多酱油。插入很多酱油。插入很多酱油。');
+            parent.layer.iframeAuto(index);
+          }
+
+          //在父层弹出一个层
+          ,
+        parentPopup: function () {
+            parent.layer.msg('Hi, man', {
+              shade: 0.3
+            })
+          }
+
+          //给父页面传值
+          ,
+        setParent: function () {
+            var id = '#LAY_layer_iframe_demo',
+              mark = $('#LAY_mark'),
+              val = mark.val();
+
+            if (val === '') {
+              mark.focus();
+              parent.layer.msg('请填写标记');
+              return true;
+            }
+
+            parent.layer.msg('您将标记 [ ' + val + ' ] 成功传送给了父窗口');
+            parent.layui.$(id).text('我被改变了');
+            parent.layer.tips('Look here', id, {
+              time: 5000
+            });
+            parent.layer.close(index);
+          }
+
+
+          //在内部关闭iframe
+          ,
+        close: function (set) {
+          parent.layer.close(index);
+        }
+      }
+
+      $('.layui-btn-container .layui-btn').on('click', function () {
+        var othis = $(this),
+          type = othis.data('type');
+        active[type] && active[type].call(this);
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,346 @@
+<title>维修保养</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>维修保养</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleMaintenance">
+    <div class="layui-card bgf2">
+        <form class="layui-form layui-form-pane" action="" lay-filter="component-form-group-vehicleMaintenance">
+            <blockquote class="layui-elem-quote news_search active">
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">维修保养类型</label>
+                    <div class="layui-input-inline">
+                        <select name="maintenanceType">
+                            <option value="">--请选择--</option>
+                            <option value="0">维修</option>
+                            <option value="1">保养</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">维修/保养人</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="maintenanceName" placeholder="请输入维修/保养人" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">保养人电话</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="maintenancePhone" placeholder="请输入维修/保养人电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="carNumber" placeholder="请输入车牌号" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">司机姓名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="driverName" placeholder="请输入司机姓名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">维修保养单号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="maintenanceNo" placeholder="请输入维修保养单号" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline inline btn" id="vehicleMaintenanceSearch"></div>
+                <i class="layui-icon layui-icon-up search-icon"></i>
+            </blockquote>
+        </form>
+
+        <table class="layui-hide" id="test-table-toolbar-vehicleMaintenance" lay-filter="test-table-toolbar-vehicleMaintenance"></table>
+        <script id="vehicleMaintenanceSearchTpl" type="text/html">
+            {{#  if(MaintenancePageElement.view){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="component-form-vehicleMaintenance">查询</button>
+            {{#  } }}
+            {{#  if(MaintenancePageElement.btn_add){ }}
+            <a class="layui-btn"  data-type="add">新 增</a>
+            {{#  } }}
+
+        </script>
+        <script type="text/html" id="test-table-toolbar-barDemo-vehicleMaintenance">
+
+            {{# if(MaintenancePageElement.get_one){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="details">查看</a>
+            {{# } }}
+            {{# if(MaintenancePageElement.btn_edit){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit" >编辑</a>
+            {{# } }}
+            {{# if(MaintenancePageElement.btn_edit){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="copy" >复制</a>
+            {{# } }}
+            {{# if(MaintenancePageElement.btn_delete){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="del">删除</a>
+            {{# } }}
+        </script>
+    </div>
+</div>
+
+<script>
+    var reload = null,
+        where = {},
+        MaintenancePageElement = {};
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        MaintenancePageElement = admin.getConfigPower("vehicleMaintenance");
+        admin.renderTpl("vehicleMaintenanceSearch", "vehicleMaintenanceSearchTpl");
+        form.render(null, 'component-form-group-vehicleMaintenance');
+        form.on('submit(component-form-vehicleMaintenance)', function (data) {
+            where = data.field;
+            reload("test-table-toolbar-vehicleMaintenance");
+            return false;
+        });
+        $('.vehicleMaintenance .search-icon').click(function () {
+            $('.vehicleMaintenance .news_search').toggleClass('active');
+        });
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleMaintenance.html',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            details: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '详情',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleMaintenance.html?id=' + id + '&details=true',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            edit: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleMaintenance.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            copy: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '复制',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleMaintenance.html?id=' + id +"&copy=true",
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            del: function (id) {
+                layer.confirm('确定删除此数据？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    admin.req({
+                        type: 'DELETE',
+                        url: '/api/logistics_intelligent/myVehicleMaintenance/multi?ids=' + id,
+                        done: function () {
+                            layer.msg( '操作成功，请稍后!', {
+                                offset: '10px'
+                                , icon: 1
+                                , time: 500
+                            }, function () {
+                                layer.close(index);
+                                reload("test-table-toolbar-vehicleMaintenance")
+                            });
+                        }
+                    });
+                })
+            }
+        };
+        $('.vehicleMaintenance').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+        table.render({
+            elem: '#test-table-toolbar-vehicleMaintenance'
+            , url: '/api/logistics_intelligent/myVehicleMaintenance/getPageList'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            // ,toolbar: '#test-table-toolbar-toolbarDemo'
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    toolbar: '#test-table-toolbar-barDemo-vehicleMaintenance',
+                    width: 192
+                }, {
+                    field: 'maintenanceType',
+                    width: 110,
+                    align: 'left',
+                    title: '维修/保养',
+                    templet: function (res) {
+                        if (0 == res.maintenanceType) {
+                            return "维修";
+                        } else if (1 == res.maintenanceType) {
+                            return "保养";
+                        } else {
+                            return  res.maintenanceType;
+                        }
+                    },
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'driverName',
+                    width: 120,
+                    align: 'left',
+                    title: '司机',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceTime',
+                    width: 180,
+                    align: 'left',
+                    title: '维修保养日期',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceAddress',
+                    width: 180,
+                    align: 'left',
+                    title: '维修保养地点',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceName',
+                    width: 140,
+                    align: 'left',
+                    title: '维修保养人',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenancePhone',
+                    width: 160,
+                    align: 'left',
+                    title: '维修/保养人电话',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceNo',
+                    width: 140,
+                    align: 'left',
+                    title: '维修/保养单号',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceFee',
+                    width: 140,
+                    align: 'right',
+                    title: '维修/保养费用',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenancePosition',
+                    width: 118,
+                    align: 'left',
+                    title: '损坏部位',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceReason',
+                    width: 160,
+                    align: 'left',
+                    title: '原因分析',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'maintenanceParts',
+                    width: 120,
+                    align: 'left',
+                    title: '汽车配件',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'nextMaintenanceTime',
+                    width: 180,
+                    align: 'left',
+                    title: '下次保养日期',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'warningDays',
+                    width: 120,
+                    align: 'right',
+                    title: '提前预警天数',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'mileage',
+                    width: 120,
+                    align: 'right',
+                    title: '车辆里程',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'remark',
+                    width: 140,
+                    align: 'left',
+                    title: '备注',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+    });
+</script>

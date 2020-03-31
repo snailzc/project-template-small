@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>角色权限管理</title>
+	<link rel="stylesheet" type="text/css" href="/start/layui/css/modules/tree2_5_5.css">
+
+	<style>
+		/*-----公共样式--------------------------------------------------------------------------------------------------*/
+		.border-box {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		.flex {
+			display: flex;
+		}
+
+		.display-none {
+			display: none;
+		}
+
+		/*-----总体样式--------------------------------------------------------------------------------------------------*/
+		.page-container {
+			padding: 0 20px;
+		}
+
+		.layui-tab-content {
+			padding: 0;
+		}
+
+		/*-----左上角操作区样式-------------------------------------------------------------------------------------------*/
+		.role-type-search input {
+			display: inline-block;
+			width: auto;
+			padding: 1px 7px;
+			height: 22px;
+			line-height: 22px;
+		}
+
+		.role-type-search .layui-btn {
+			margin-left: 10px;
+		}
+
+		.role-type-manage {
+			padding: 10px 0;
+		}
+
+		.role-type-manage .layui-btn:not(.role-add) {
+			display: none;
+		}
+
+		.required {
+			color: #FF0000;
+			margin-right: 5px;
+		}
+
+		.form-role-type.layui-form-pane .layui-form-label {
+			width: 110px !important; /*important是不应该写的，但是被某一个important给乱了样式，不得已而为之*/
+		}
+
+		.form-role-type input[readonly="readonly"], .form-role-type .layui-disabled {
+			background: #e2e2e2;
+		}
+	</style>
+</head>
+<body>
+<div class="page-container">
+	<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+		<ul class="layui-tab-title">
+			<li class="layui-this">角色类型</li>
+		</ul>
+		<div class="layui-tab-content"></div>
+	</div>
+	<div class="role-type-search flex border-box">
+		<div class="flex">
+			<span>关键字：</span>
+			<input type="text" name="name" autocomplete="off" class="layui-input">
+			<button class="layui-btn layui-btn-xs layui-btn-normal role-query">
+				<i class="layui-icon">&#xe615;</i>查询
+			</button>
+			<button class="layui-btn layui-btn-xs layui-btn-primary role-reset">
+				<i class="layui-icon">&#xe669;</i>重置
+			</button>
+		</div>
+	</div>
+	<div class="role-type-manage flex">
+		<button class="layui-btn layui-btn-xs layui-btn-primary role-add">
+			<i class="layui-icon">&#xe654;</i>新增
+		</button>
+		<button class="layui-btn layui-btn-xs layui-btn-danger role-edit">
+			<i class="layui-icon">&#xe642;</i>编辑
+		</button>
+		<button class="layui-btn layui-btn-xs layui-btn-danger role-del">
+			<i class="layui-icon">&#xe640;</i>删除
+		</button>
+		<button class="layui-btn layui-btn-xs layui-btn-normal role-auth-assign">
+			<i class="layui-icon">&#xe60a;</i>分配权限
+		</button>
+		<button class="layui-btn layui-btn-xs layui-btn-primary user-assign">
+			<i class="layui-icon">&#xe770;</i>分配用户
+		</button>
+	</div>
+	<div class="main-content-area layui-row">
+		<div id="role-tree" class="layui-col-md4">暂无数据</div>
+		<form class="layui-form layui-col-md6 form-role-type layui-form-pane" lay-filter="form-role-type">
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span> 名称</label>
+				<div class="layui-input-block">
+					<input type="text" name="name" required lay-verify="required"
+						   autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>编码</label>
+				<div class="layui-input-block">
+					<input type="text" name="code" required lay-verify="required"
+						   autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item form-select">
+				<label class="layui-form-label"><span class="required">*</span>类型</label>
+				<div class="layui-input-block">
+					<select name="type" required lay-verify="required">
+						<option value="">请选择</option>
+						<option value="INNER_ACCOUNT">内部角色</option>
+						<option value="EXTERNAL_ACCOUNT">外部角色</option>
+					</select>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">排序</label>
+				<div class="layui-input-block">
+					<input type="number" name="orderNum"
+						   autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">目录</label>
+				<div class="layui-input-block">
+					<input type="text" name="mullu" title="未选中父节点时，新增的角色为根目录下的角色"
+						   autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">描述</label>
+				<div class="layui-input-block">
+					<input type="text" name="description"
+						   autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block role-form-button display-none" style="text-align: center">
+					<button class="layui-btn layui-btn-sm layui-btn-normal button-form-add display-none"
+							lay-submit type="button" lay-filter="button-form-add"
+					>
+						&nbsp;增加&nbsp;
+					</button>
+					<button class="layui-btn layui-btn-sm layui-btn-normal button-form-update display-none"
+							lay-submit type="button" lay-filter="button-form-update">
+						&nbsp;更新&nbsp;
+					</button>
+					<button class="layui-btn layui-btn-sm layui-btn-primary button-form-cancel"
+							lay-submit type="button" lay-filter="button-form-cancel">
+						&nbsp;取消&nbsp;
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script src="/start/js/method.js"></script>
+<script>
+  var groupType;
+
+  $.ajax({
+    url: "/api/admin/groupType/all?appCode=logistics-intelligent",
+    type: "GET",
+    async: true,
+    headers: {
+      Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+    },
+    success: function (res) {
+      groupType = res[0].id;
+      asyncAddScript("/start/js/logistics-intelligentManager/logistics-intelligentGroupManager/index.js");
+    }
+  });
+
+  function asyncAddScript(url) {
+    let jsApi = document.createElement('script');
+    jsApi.charset = 'utf-8';
+    jsApi.src = url;
+    document.body.appendChild(jsApi);
+    return jsApi;
+  }
+</script>
+</body>
+</html>

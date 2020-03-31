@@ -1,0 +1,443 @@
+<title>事故记录</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>车辆服务</cite></a>
+        <a><cite>事故记录</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid vehicleAccident">
+    <div class="layui-card bgf2">
+        <form action="" class="layui-form layui-form-pane" lay-filter="component-form-group-vehicleAccident">
+            <blockquote class="layui-elem-quote news_search active">
+                
+                <div class="layui-inline inline">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="carNumberLike" placeholder="请输入车牌号" type="text">
+                    </div>
+                </div>
+                
+                <div class="layui-inline">
+                    <label class="layui-form-label">事故日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="accidentTimeLike"
+                               name="accidentTimeLike" placeholder="请选择" type="text">
+                    </div>
+                </div>
+                
+                <div class="layui-inline inline btn" id="vehicleAccidentSearch"></div>
+                <i class="layui-icon layui-icon-up search-icon"></i>
+            </blockquote>
+        </form>
+
+        <table class="layui-hide" id="test-table-toolbar-vehicleAccident"
+               lay-filter="test-table-toolbar-vehicleAccident"></table>
+        <script id="vehicleAccidentSearchTpl" type="text/html">
+            {{#  if(vehicleAccidentPageElement.admin_get_accident_page){ }}
+            <button class="layui-btn" lay-submit="" lay-filter="component-form-vehicleAccident">查询</button>
+            {{#  } }}
+            {{#  if(vehicleAccidentPageElement.admin_create_accident){ }}
+            <a class="layui-btn" data-type="add">新增</a>
+            {{#  } }}
+
+        </script>
+        <script id="test-table-toolbar-barDemo-vehicleAccident" type="text/html">
+            
+            {{# if(vehicleAccidentPageElement.admin_edit_accident){ }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" data-id="{{d.id}}" data-type="edit">编辑</a>
+            {{# } }}
+            {{# if(vehicleAccidentPageElement.admin_del_accident){ }}
+            <a class="layui-btn layui-btn-danger layui-btn-xs" data-id="{{d.id}}" data-type="delete">删除</a>
+            {{# } }}
+        </script>
+    </div>
+</div>
+
+<script>
+    var reload = null,
+        where = {},
+        vehicleAccidentPageElement = {};
+    
+    layui.use(['admin', 'form', 'laydate', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , table = layui.table
+            , setter = layui.setter
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        vehicleAccidentPageElement = admin.getConfigPower("vehicleAccident");
+
+        admin.renderTpl("vehicleAccidentSearch", "vehicleAccidentSearchTpl");
+
+        form.render(null, 'component-form-group-vehicleAccident');
+
+        laydate.render({
+            elem: '#accidentTimeLike',
+            trigger: 'click',
+            type: 'date'
+        });
+
+
+        form.on('submit(component-form-vehicleAccident)', function (data) {
+            where = data.field;
+            reload("test-table-toolbar-vehicleAccident");
+            return false;
+        });
+
+        $('.vehicleAccident .search-icon').click(function () {
+            $('.vehicleAccident .news_search').toggleClass('active');
+        });
+
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAccident.html',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            details: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '详情',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAccident.html?id=' + id + '&details=true',
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            edit: function (id) {
+                layer.open({
+                    type: 2,
+                    title: '编辑',
+                    content: layui.setter.base + 'views/iframe/vehicleService/vehicleAccident.html?id=' + id,
+                    shadeClose: true,
+                    area: ['50%', '500px'],
+                    maxmin: true
+                });
+            },
+            delete: function (id) {
+                layer.confirm('确定删除此数据？', {
+                    icon: 3,
+                    title: '提示信息'
+                }, function (index, layero) {
+                    admin.req({
+                        type: 'DELETE',
+                        url: '/api/logistics_intelligent/vehicle/accident/admin/' + id,
+                    });
+                    reload(test-table-toolbar-vehicleAccident);
+                    layer.close(index)
+                })
+            }
+        };
+
+        $('.vehicleAccident').on('click', '.layui-btn', function () {
+            var type = $(this).data('type');
+            var id = $(this).data('id');
+            active[type] && active[type].call(this, id);
+        });
+
+        table.render({
+            elem: '#test-table-toolbar-vehicleAccident'
+            , url: '/api/logistics_intelligent/vehicle/accident/admin/page/v2'
+            , method: 'POST'
+            , contentType: 'application/json'
+            , headers: {
+                Authorization: layui.data(setter.tableName)[setter.request.tokenName]
+            }
+            , height: layui.setter.tableHeight
+            // ,toolbar: '#test-table-toolbar-toolbarDemo'
+            , cols: [[
+                {
+                    fixed: 'left',
+                    align: 'center',
+                    title: '操作',
+                    toolbar: '#test-table-toolbar-barDemo-vehicleAccident',
+                    width: 110
+                },
+                {
+                    field: 'recorder',
+                    width: 110,
+                    align: 'left',
+                    title: '备案人',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'recordTime',
+                    width: 180,
+                    align: 'left',
+                    title: '备案时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'carNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '车牌号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'driverUserName',
+                    width: 110,
+                    align: 'left',
+                    title: '司机',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'companyName',
+                    width: 110,
+                    align: 'left',
+                    title: '所属公司',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleTypeText',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆类型',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleBrand',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆品牌',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleModel',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆型号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'compulsoryInsuranceCompany',
+                    width: 110,
+                    align: 'left',
+                    title: '强险公司',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'compulsoryInsuranceNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '强险单号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'compulsoryInsuranceFrom',
+                    width: 180,
+                    align: 'left',
+                    title: '强险单起保日期',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'compulsoryInsuranceTo',
+                    width: 180,
+                    align: 'left',
+                    title: '强险单终保日期',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'commercialInsuranceCompany',
+                    width: 110,
+                    align: 'left',
+                    title: '商业险公司',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'commercialInsuranceNumber',
+                    width: 110,
+                    align: 'left',
+                    title: '商业险单号',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'commercialInsuranceFrom',
+                    width: 180,
+                    align: 'left',
+                    title: '商业险起保日期',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'commercialInsuranceTo',
+                    width: 180,
+                    align: 'left',
+                    title: '商业险终保日期',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentTime',
+                    width: 180,
+                    align: 'left',
+                    title: '事故时间',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentTypeText',
+                    width: 110,
+                    align: 'left',
+                    title: '事故类型',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentResponsible',
+                    width: 110,
+                    align: 'left',
+                    title: '事故责任方',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentCause',
+                    width: 110,
+                    align: 'left',
+                    title: '事故原因',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentLocation',
+                    width: 110,
+                    align: 'left',
+                    title: '事故地点',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'accidentLevelText',
+                    width: 110,
+                    align: 'left',
+                    title: '事故等级',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'isReport',
+                    width: 110,
+                    align: 'left',
+                    title: '是否报案',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'solution',
+                    width: 110,
+                    align: 'left',
+                    title: '解决方案',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'process',
+                    width: 110,
+                    align: 'left',
+                    title: '事故经过',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'analysis',
+                    width: 130,
+                    align: 'left',
+                    title: '事故原因分析',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'personnelLoss',
+                    width: 110,
+                    align: 'left',
+                    title: '人员损失',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'propertyLoss',
+                    width: 110,
+                    align: 'left',
+                    title: '财产损失',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'vehicleLoss',
+                    width: 110,
+                    align: 'left',
+                    title: '车辆损失',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'currentProcessResult',
+                    width: 130,
+                    align: 'left',
+                    title: '当前处理情况',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'attachmentUrl',
+                    width: 110,
+                    align: 'left',
+                    title: '附件链接',
+                    unresize: false,
+                    sort: true
+                },
+                {
+                    field: 'crtTime',
+                    width: 180,
+                    align: 'left',
+                    title: '创建时间',
+                    unresize: false,
+                    sort: true
+                }, {
+                    field: 'updTime',
+                    width: 180,
+                    align: 'left',
+                    title: '更新时间',
+                    unresize: false,
+                    sort: true
+
+                }
+            ]]
+            , page: true
+        });
+
+        reload = function (id) {
+            table.reload(id, {
+                height: layui.setter.tableHeight,
+                where: where,
+            });
+        }
+
+    });
+</script>
