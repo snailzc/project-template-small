@@ -70,7 +70,7 @@
         </a>
       </li>
       <li class="layui-nav-item" lay-unselect>
-        <script type="text/html" template lay-url="/api/admin/user/front/info" lay-headers="{frontAppCode: '" + config.appCode "'}"
+        <script type="text/html" template lay-url="/api/admin/user/front/info" lay-headers="{frontAppCode: '{{config.appCode}}'}"
         lay-done="layui.data.done(d);">
           <a href="javascript:;">
             <cite>{{ d.name }}</cite>
@@ -96,7 +96,7 @@
   <!-- 侧边菜单 -->
   <div class="layui-side layui-side-menu">
     <div class="layui-side-scroll">
-      <script type="text/html" template lay-url="/api/admin/user/front/menus/logistics" lay-headers="{frontAppCode: '" + config.appCode + "'}"
+      <script type="text/html" template lay-url="/api/admin/user/front/menus/logistics" lay-headers="{frontAppCode: '{{config.appCode}}'}"
       lay-done="layui.element.render('nav', 'layadmin-system-side-menu');" id="TPL_layout">
 
         <!-- <div class="layui-logo" lay-href="">
@@ -109,7 +109,7 @@
           ,pathURL = layui.admin.correctRouter(path.join('/'))
           ,dataName = layui.setter.response.dataName
           ,data = d[dataName].filter(function(item){
-            return item.code !== 'logistics-intelligentDataInterface';
+            return item.code !== config.appCode + 'DataInterface';
           });
 
           layui.each(data, function(index, item){

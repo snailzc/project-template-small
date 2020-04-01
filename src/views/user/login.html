@@ -96,7 +96,7 @@
                         time: 1000
                     }, function () {
                         admin.req({
-                            url: '/api/auth/online/user/safety-trace'
+                            url: '/api/auth/online/user/' + config.appCode
                             , type: 'post'
                             , done: function (res) {
                                 console.log(res);
