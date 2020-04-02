@@ -58,7 +58,7 @@
         </a>
       </li> -->
       <li class="layui-nav-item" lay-unselect style="cursor: pointer;" id="userOnlineInfo">
-        <script type="text/html" template lay-url="/api/auth/online/user/count/" + config.appCode lay-done="layui.data(d);">
+        <script type="text/html" template lay-url="/api/auth/online/user/count/{{config.appCode}}" lay-done="layui.data(d);">
           <span>
             在线人数：{{ d.data }}
           </span>
