@@ -20,6 +20,7 @@
 .main > .login-main > .login-header{
     display: flex;
     margin: 0 auto!important;
+    justify-content: center;
     width: 500px;
     font-family: PingFang SC;
     font-size: 30px;
